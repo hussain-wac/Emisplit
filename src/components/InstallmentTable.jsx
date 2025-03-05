@@ -27,7 +27,7 @@ const InstallmentTable = ({
     </thead>
     <tbody>
       {installments.map((installment, index) => (
-        <tr key={index} className="bg-white border-b hover:bg-gray-50">
+        <tr key={installment.id} className="bg-white border-b hover:bg-gray-50">
           <td className="p-3">
             <input
               type="checkbox"

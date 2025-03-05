@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SplitIcon, ListIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 const useInstallmentLogic = () => {
   const [recommendedAmount, setRecommendedAmount] = useState('');
@@ -23,6 +24,7 @@ const useInstallmentLogic = () => {
     if (!isNaN(amount) && !isNaN(count) && count > 0) {
       const installmentAmount = amount / count;
       setInstallments([...Array(count)].map((_, index) => ({
+        id: uuidv4(),
         installmentNo: index + 1,
         amount: installmentAmount.toFixed(2),
         isMerged: false,
@@ -43,11 +45,20 @@ const useInstallmentLogic = () => {
     }
 
     const sortedIndexes = selectedInstallments.sort((a, b) => a - b);
+    const areConsecutive = sortedIndexes.every((value, index, array) => {
+      return index === 0 || value === array[index - 1] + 1;
+    });
+
+    if (!areConsecutive) {
+      toast.error('You can only merge consecutive installments.');
+      return;
+    }
+
     const mergedAmount = selectedInstallments.reduce((sum, index) => {
       return sum + parseFloat(installments[index].amount);
     }, 0).toFixed(2);
 
-    const mergedKey = sortedIndexes.join('-');
+    const mergedKey = uuidv4();
 
     setMergedRows(prev => ({
       ...prev,
@@ -60,6 +71,7 @@ const useInstallmentLogic = () => {
 
     const newInstallments = installments.filter((_, index) => !selectedInstallments.includes(index));
     newInstallments.splice(sortedIndexes[0], 0, {
+      id: uuidv4(),
       installmentNo: sortedIndexes.map(index => installments[index].installmentNo).join(' + '),
       amount: mergedAmount,
       dueDate: dueDates[sortedIndexes[0]] ? dueDates[sortedIndexes[0]].toISOString().split('T')[0] : 'eg: 01 Jan 20',
@@ -109,16 +121,17 @@ const useInstallmentLogic = () => {
       const newInstallments = [...installments];
       newInstallments.splice(index, 1, ...Array(splitCount).fill({
         ...installment,
+        id: uuidv4(),
         amount: splitAmount.toFixed(2),
         installmentNo: `${installment.installmentNo}.${1}`,
         isSplit: true,
-        originalKey: installment.installmentNo
+        originalKey: installment.id
       }));
 
       setInstallments(newInstallments);
       setSplitRows(prev => ({
         ...prev,
-        [installment.installmentNo]: {
+        [installment.id]: {
           original: installment,
           splits: newInstallments.slice(index, index + splitCount)
         }
@@ -146,9 +159,7 @@ const useInstallmentLogic = () => {
     const newDueDates = [...dueDates];
     newDueDates[index] = date;
 
-    // Check if this is the first time setting the date for this installment
     if (dueDates[index] === null) {
-      // Auto-fill subsequent dates
       const selectedDate = new Date(date);
       for (let i = index + 1; i < newDueDates.length; i++) {
         selectedDate.setMonth(selectedDate.getMonth() + 1);
@@ -158,7 +169,6 @@ const useInstallmentLogic = () => {
 
     setDueDates(newDueDates);
 
-    // Update selectedDates state
     const updatedSelectedDates = [...selectedDates];
     if (!selectedDates.includes(date.toDateString())) {
       updatedSelectedDates.push(date.toDateString());
@@ -170,17 +180,14 @@ const useInstallmentLogic = () => {
     const today = new Date();
     const selectedDate = new Date(date);
 
-    // Check if date is before today
     if (selectedDate < today) {
       return false;
     }
 
-    // Check if date is already selected
     if (selectedDates.includes(selectedDate.toDateString())) {
       return false;
     }
 
-    // Check if date is sequential
     if (index > 0) {
       const previousDate = new Date(dueDates[index - 1]);
       if (selectedDate < previousDate) {
