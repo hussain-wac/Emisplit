@@ -153,39 +153,43 @@ const useInstallmentLogic = () => {
 
   const handleDateChange = (index, date) => {
     const newDueDates = [...dueDates];
-    newDueDates[index] = date;
-
-
-
- // Check if this is the first time setting the date for this installment
- if (dueDates[index] === null) {
-  // Auto-fill subsequent dates
-  const selectedDate = new Date(date);
-  for (let i = index + 1; i < newDueDates.length; i++) {
-    selectedDate.setMonth(selectedDate.getMonth() + 1);
-    newDueDates[i] = new Date(selectedDate);
-  }
-}
-
+  
+    // If it's the first selection, prefill all future installments sequentially.
+    if (!dueDates.some(d => d !== null)) {
+      for (let i = index; i < newDueDates.length; i++) {
+        const newDate = new Date(date);
+        newDate.setMonth(newDate.getMonth() + (i - index));
+        newDueDates[i] = newDate;
+      }
+    } else {
+      newDueDates[index] = date;
+    }
+  
+    setDueDates(newDueDates);
+    
     // Update selectedDates state
     const updatedSelectedDates = [...selectedDates];
     updatedSelectedDates[index] = date;
     setSelectedDates(updatedSelectedDates);
-
-    setDueDates(newDueDates);
   };
-
   const validateDate = (date, index) => {
     const today = new Date();
     const selectedDate = new Date(date);
-
+  
+    // Check if the selected date is valid
+    if (isNaN(selectedDate.getTime())) {
+      return false;
+    }
+  
     // Check if date is before today
     if (selectedDate < today) {
       return false;
     }
-
+  
     // Check if date is already selected in another installment
     const isDateSelectedElsewhere = selectedDates.some((selectedDateObj, selectedIndex) => {
+      if (!selectedDateObj) return false; // Skip null/undefined values
+  
       return (
         selectedIndex !== index &&
         selectedDateObj.getDate() === selectedDate.getDate() &&
@@ -193,21 +197,22 @@ const useInstallmentLogic = () => {
         selectedDateObj.getFullYear() === selectedDate.getFullYear()
       );
     });
-
+  
     if (isDateSelectedElsewhere) {
       return false;
     }
-
+  
     // Check if date is sequential
     if (index > 0) {
       const previousDate = new Date(dueDates[index - 1]);
-      if (selectedDate < previousDate) {
+      if (!isNaN(previousDate.getTime()) && selectedDate < previousDate) {
         return false;
       }
     }
-
+  
     return true;
   };
+  
 
   return {
     recommendedAmount,
