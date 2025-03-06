@@ -27,7 +27,7 @@ const InstallmentTable = ({
     </thead>
     <tbody>
       {installments.map((installment, index) => (
-        <tr key={index} className="bg-white border-b hover:bg-gray-50">
+        <tr key={`${installment.id}-${index}`} className="bg-white border-b hover:bg-gray-50">
           <td className="p-3">
             <input
               type="checkbox"
@@ -58,7 +58,10 @@ const InstallmentTable = ({
               minDate={new Date()}
               shouldCloseOnSelect={false}
               filterDate={(date) => validateDate(date, index)}
-              excludeDates={selectedDates.map(dateStr => new Date(dateStr))}
+              excludeDates={selectedDates
+                .filter(dateStr => dateStr) // Ensure only valid dates
+                .map(dateStr => new Date(dateStr))
+              }
             />
           </td>
           <td className="p-3">
