@@ -155,24 +155,24 @@ const useInstallmentLogic = () => {
     const newDueDates = [...dueDates];
     newDueDates[index] = date;
 
-    // Check if this is the first time setting the date for this installment
-    if (dueDates[index] === null) {
-      // Auto-fill subsequent dates
-      const selectedDate = new Date(date);
-      for (let i = index + 1; i < newDueDates.length; i++) {
-        selectedDate.setMonth(selectedDate.getMonth() + 1);
-        newDueDates[i] = new Date(selectedDate);
-      }
-    }
 
-    setDueDates(newDueDates);
+
+ // Check if this is the first time setting the date for this installment
+ if (dueDates[index] === null) {
+  // Auto-fill subsequent dates
+  const selectedDate = new Date(date);
+  for (let i = index + 1; i < newDueDates.length; i++) {
+    selectedDate.setMonth(selectedDate.getMonth() + 1);
+    newDueDates[i] = new Date(selectedDate);
+  }
+}
 
     // Update selectedDates state
     const updatedSelectedDates = [...selectedDates];
-    if (!selectedDates.includes(date.toDateString())) {
-      updatedSelectedDates.push(date.toDateString());
-      setSelectedDates(updatedSelectedDates);
-    }
+    updatedSelectedDates[index] = date;
+    setSelectedDates(updatedSelectedDates);
+
+    setDueDates(newDueDates);
   };
 
   const validateDate = (date, index) => {
@@ -184,8 +184,17 @@ const useInstallmentLogic = () => {
       return false;
     }
 
-    // Check if date is already selected
-    if (selectedDates.includes(selectedDate.toDateString())) {
+    // Check if date is already selected in another installment
+    const isDateSelectedElsewhere = selectedDates.some((selectedDateObj, selectedIndex) => {
+      return (
+        selectedIndex !== index &&
+        selectedDateObj.getDate() === selectedDate.getDate() &&
+        selectedDateObj.getMonth() === selectedDate.getMonth() &&
+        selectedDateObj.getFullYear() === selectedDate.getFullYear()
+      );
+    });
+
+    if (isDateSelectedElsewhere) {
       return false;
     }
 
