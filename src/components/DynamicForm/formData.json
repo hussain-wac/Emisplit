@@ -76,6 +76,90 @@
     "required": true
   },
   {
+    "id": "company",
+    "label": "Company Name",
+    "type": "text",
+    "placeholder": "Enter your company name (if applicable)",
+    "required": false
+  },
+  {
+    "id": "linkedin",
+    "label": "LinkedIn Profile",
+    "type": "url",
+    "placeholder": "Enter your LinkedIn profile URL",
+    "required": false
+  },
+  {
+    "id": "github",
+    "label": "GitHub Profile",
+    "type": "url",
+    "placeholder": "Enter your GitHub profile URL",
+    "required": false
+  },
+  {
+    "id": "experience",
+    "label": "Years of Experience",
+    "type": "number",
+    "placeholder": "Enter your years of experience",
+    "required": false
+  },
+  {
+    "id": "job_role",
+    "label": "Preferred Job Role",
+    "type": "select",
+    "options": [
+      { "label": "Frontend Developer", "value": "frontend" },
+      { "label": "Backend Developer", "value": "backend" },
+      { "label": "Full Stack Developer", "value": "fullstack" },
+      { "label": "UI/UX Designer", "value": "uiux" }
+    ],
+    "required": true
+  },
+  {
+    "id": "portfolio",
+    "label": "Portfolio Website",
+    "type": "url",
+    "placeholder": "Enter your portfolio website URL",
+    "required": false
+  },
+  {
+    "id": "cover_letter",
+    "label": "Upload Cover Letter",
+    "type": "file",
+    "accept": ".pdf,.doc,.docx",
+    "required": false
+  },
+  {
+    "id": "contact_method",
+    "label": "Preferred Contact Method",
+    "type": "radio",
+    "options": [
+      { "label": "Email", "value": "email" },
+      { "label": "Phone", "value": "phone" },
+      { "label": "WhatsApp", "value": "whatsapp" }
+    ],
+    "required": true
+  },
+  {
+    "id": "languages",
+    "label": "Languages Spoken",
+    "type": "checkbox-group",
+    "options": [
+      { "label": "English", "value": "english" },
+      { "label": "Hindi", "value": "hindi" },
+      { "label": "Spanish", "value": "spanish" },
+      { "label": "French", "value": "french" }
+    ],
+    "required": false
+  },
+  {
+    "id": "expected_salary",
+    "label": "Expected Salary",
+    "type": "number",
+    "placeholder": "Enter your expected salary in USD",
+    "required": false
+  },
+  {
     "id": "terms",
     "label": "Accept Terms & Conditions",
     "type": "checkbox",

@@ -1,64 +1,57 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useField } from 'informed';
 
 const FileInput = ({ field, validate }) => {
   const { id, label, accept, required } = field;
   const {
     fieldState: { value, error },
-    fieldApi: { setValue },ref
+    fieldApi: { setValue },
+    ref,
   } = useField({
     name: id,
     validate,
     validateOn: 'change',
   });
 
- 
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [fileType, setFileType] = useState(null);
+  // Single state to hold preview URL and file type
+  const [preview, setPreview] = useState({ url: null, type: null });
 
-  // Ref to track the previous preview URL for cleanup
-  const prevPreviewUrlRef = useRef(null);
+  // Update preview when the informed value changes
+  useEffect(() => {
+    let newPreview = { url: null, type: null };
 
-  // Handle file selection and preview logic
+    if (value && value.length > 0) {
+      const file = value[0];
+      const extension = file.name.split('.').pop().toLowerCase();
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+      let fileType = 'unsupported';
+
+      if (imageExtensions.includes(extension)) {
+        fileType = 'image';
+      } else if (extension === 'pdf') {
+        fileType = 'pdf';
+      }
+
+      newPreview = {
+        url: URL.createObjectURL(file),
+        type: fileType,
+      };
+    }
+
+    setPreview(newPreview);
+
+    return () => {
+      if (newPreview.url) {
+        URL.revokeObjectURL(newPreview.url);
+      }
+    };
+  }, [value]);
+
   const handleChange = (event) => {
     const files = event.target.files;
-  
-    if (files.length === 0) {
-      // Reset state if no file is selected
-      setValue(null);
-      setFileType(null);
-      setPreviewUrl(null);
-      
-      if (prevPreviewUrlRef.current) {
-        URL.revokeObjectURL(prevPreviewUrlRef.current);
-        prevPreviewUrlRef.current = null;
-      }
-      return;
-    }
-  
-    setValue(files);
-  
-    const file = files[0];
-    const extension = file.name.split('.').pop().toLowerCase();
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
-  
-    let newFileType = 'unsupported';
-    if (imageExtensions.includes(extension)) {
-      newFileType = 'image';
-    } else if (extension === 'pdf') {
-      newFileType = 'pdf';
-    }
-    setFileType(newFileType);
-  
-    const newPreviewUrl = URL.createObjectURL(file);
-    setPreviewUrl(newPreviewUrl);
-  
-    if (prevPreviewUrlRef.current) {
-      URL.revokeObjectURL(prevPreviewUrlRef.current);
-    }
-    prevPreviewUrlRef.current = newPreviewUrl;
+    setValue(files.length > 0 ? files : null);
   };
-  
+
   return (
     <div className="space-y-4">
       {/* Label */}
@@ -94,27 +87,41 @@ const FileInput = ({ field, validate }) => {
         </div>
       </div>
 
+      {/* Display Attached File Name(s) */}
+      {value && value.length > 0 && (
+        <div className="mt-2 text-sm text-gray-700">
+          {value.length === 1 ? (
+            <span>{value[0].name}</span>
+          ) : (
+            value.map((file, index) => (
+              <span key={index}>
+                {file.name}
+                {index < value.length - 1 ? ', ' : ''}
+              </span>
+            ))
+          )}
+        </div>
+      )}
+
       {/* Preview */}
-      {fileType && (
+      {preview.type && (
         <div className="mt-4">
-          {fileType === 'image' && (
+          {preview.type === 'image' && (
             <div className="aspect-w-3 aspect-h-2 overflow-hidden rounded-lg border border-gray-200">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="object-cover"
-              />
+              <img src={preview.url} alt="Preview" className="object-cover" />
             </div>
           )}
-          {fileType === 'pdf' && (
+          {preview.type === 'pdf' && (
             <iframe
-              src={previewUrl}
+              src={preview.url}
               title="PDF Preview"
               style={{ width: '100%', height: '500px', border: 'none' }}
             />
           )}
-          {fileType === 'unsupported' && (
-            <p className="text-gray-500">Preview not available for this file type.</p>
+          {preview.type === 'unsupported' && (
+            <p className="text-gray-500">
+              Preview not available for this file type.
+            </p>
           )}
         </div>
       )}

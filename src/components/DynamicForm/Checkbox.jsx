@@ -25,6 +25,7 @@ const Checkbox = ({ field, validate }) => {
           name={id}
           ref={ref}
           type="checkbox"
+          required={required}
           checked={!!value}
           onChange={handleChange}
           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
