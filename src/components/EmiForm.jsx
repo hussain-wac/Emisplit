@@ -24,26 +24,21 @@ const EmiForm = () => {
     selectedDates,
   } = useInstallmentLogic();
 
-
   const handleSubmit = () => {
-    // Prepare the data for submission
     const submissionData = {
       recommendedAmount,
       installmentCount,
       installments: installments.map((installment, index) => ({
         installmentNo: installment.installmentNo,
         amount: installment.amount,
-        dueDate: dueDates[index] ? dueDates[index].toISOString().split('T')[0] : null, // Convert date to 'YYYY-MM-DD'
+        dueDate: dueDates[index] ? dueDates[index].toISOString().split('T')[0] : null, 
         isMerged: installment.isMerged || false,
         isSplit: installment.isSplit || false,
       })),
     };
   
-    console.log("Submitted Data:", submissionData); // Log data to console
-    alert("Data submitted successfully! ✅ (Check console)");
+    console.log("Submitted Data:", submissionData); 
   };
-  
-  
 
   return (
     <div className="container mx-auto p-6">
@@ -76,12 +71,12 @@ const EmiForm = () => {
         <button
           type="button"
           className={`flex items-center px-4 py-2 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 ${
-            selectedInstallments.length < 2
+            selectedInstallments && selectedInstallments.length < 2
               ? "opacity-50 cursor-not-allowed"
               : ""
           }`}
           onClick={mergeInstallments}
-          disabled={selectedInstallments.length < 2}
+          disabled={selectedInstallments && selectedInstallments.length < 2}
         >
           <svg
             className="w-4 h-4 mr-2"
@@ -101,12 +96,12 @@ const EmiForm = () => {
         <button
           type="button"
           className={`flex items-center px-4 py-2 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 ${
-            selectedInstallments.length !== 1
+            selectedInstallments && selectedInstallments.length !== 1
               ? "opacity-50 cursor-not-allowed"
               : ""
           }`}
           onClick={splitInstallments}
-          disabled={selectedInstallments.length !== 1}
+          disabled={selectedInstallments && selectedInstallments.length !== 1}
         >
           <svg
             className="w-4 h-4 mr-2"

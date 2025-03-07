@@ -1,4 +1,3 @@
-// useInstallmentLogic.js
 import { useState, useEffect } from 'react';
 import { calculateInstallments as calcInstallments } from './installments/calculateInstallments';
 import { mergeInstallments as merge, unmergeInstallments as unmerge } from './installments/mergeInstallments';
@@ -6,79 +5,121 @@ import { splitInstallment, revertSplit as revertSplitHelper } from './installmen
 import { handleDateChange as handleDateChangeHandler, validateDate as validateDateHandler } from './installments/dateHandlers';
 
 const useInstallmentLogic = () => {
-  const [recommendedAmount, setRecommendedAmount] = useState('');
-  const [installmentCount, setInstallmentCount] = useState('');
-  const [selectedInstallments, setSelectedInstallments] = useState([]);
-  const [installments, setInstallments] = useState([]);
-  const [dueDates, setDueDates] = useState([]);
-  const [mergedRows, setMergedRows] = useState({});
-  const [splitRows, setSplitRows] = useState({});
-  const [selectedDates, setSelectedDates] = useState([]);
+  const [installmentData, setInstallmentData] = useState({
+    recommendedAmount: '',
+    installmentCount: '',
+    selectedInstallments: [],
+    installments: [],
+    dueDates: [],
+    mergedRows: {},
+    splitRows: {},
+    selectedDates: [],
+  });
+
+  const {
+    recommendedAmount,
+    installmentCount,
+    selectedInstallments,
+    installments,
+    dueDates,
+    mergedRows,
+    splitRows,
+    selectedDates,
+  } = installmentData;
 
   useEffect(() => {
-    const { installments: newInstallments, newDueDates } = calcInstallments(
-      recommendedAmount,
-      installmentCount,
-      dueDates
-    );
-    setInstallments(newInstallments);
-    setDueDates(newDueDates);
+    if (recommendedAmount && installmentCount) {
+      const { installments: newInstallments, newDueDates } = calcInstallments(
+        recommendedAmount,
+        installmentCount,
+        dueDates
+      );
+      setInstallmentData(prevData => ({
+        ...prevData,
+        installments: newInstallments,
+        dueDates: newDueDates,
+        selectedDates: newDueDates.map(() => null),
+        selectedInstallments: [],
+   
+      }));
+
+  
+    }
   }, [recommendedAmount, installmentCount]);
 
   const mergeInstallments = () => {
     const result = merge(selectedInstallments, installments, dueDates);
     if (result.error) return;
-    setMergedRows(prev => ({
-      ...prev,
-      [result.mergedData.mergedKey]: {
-        indexes: result.mergedData.indexes,
-        originalInstallments: result.mergedData.originalInstallments,
-        originalDueDates: result.mergedData.originalDueDates
-      }
+    setInstallmentData(prevData => ({
+      ...prevData,
+      mergedRows: {
+        ...prevData.mergedRows,
+        [result.mergedData.mergedKey]: {
+          indexes: result.mergedData.indexes,
+          originalInstallments: result.mergedData.originalInstallments,
+          originalDueDates: result.mergedData.originalDueDates,
+        },
+      },
+      installments: result.newInstallments,
+      dueDates: result.newDueDates,
+      selectedInstallments: [],
     }));
-    setInstallments(result.newInstallments);
-    setDueDates(result.newDueDates);
-    setSelectedInstallments([]);
   };
 
   const unmergeInstallments = (mergedKey) => {
     const result = unmerge(mergedKey, mergedRows, installments, dueDates);
-    setInstallments(result.newInstallments);
-    setDueDates(result.newDueDates);
-    setMergedRows(prev => {
-      const newMerged = { ...prev };
-      delete newMerged[mergedKey];
-      return newMerged;
-    });
+    setInstallmentData(prevData => ({
+      ...prevData,
+      installments: result.newInstallments,
+      dueDates: result.newDueDates,
+      mergedRows: {
+        ...prevData.mergedRows,
+        [mergedKey]: undefined,
+      },
+    }));
   };
+
   const splitInstallments = () => {
     const result = splitInstallment(selectedInstallments, installments, dueDates);
     if (result.error) return;
-    setInstallments(result.newInstallments);
-    setDueDates(result.newDueDates);
-    setSplitRows(prev => ({
-      ...prev,
-      [result.splitData.original.installmentNo]: result.splitData
+    setInstallmentData(prevData => ({
+      ...prevData,
+      installments: result.newInstallments,
+      dueDates: result.newDueDates,
+      splitRows: {
+        ...prevData.splitRows,
+        [result.splitData.original.installmentNo]: result.splitData,
+      },
+      selectedInstallments: [],
     }));
-    setSelectedInstallments([]);
   };
-  
+
   const revertSplit = (originalKey) => {
     const result = revertSplitHelper(originalKey, splitRows, installments, dueDates);
     if (result.error) return;
-    setInstallments(result.newInstallments);
-    setDueDates(result.newDueDates);
-    setSplitRows(prev => {
-      const newSplit = { ...prev };
-      delete newSplit[originalKey];
-      return newSplit;
-    });
+    setInstallmentData(prevData => ({
+      ...prevData,
+      installments: result.newInstallments,
+      dueDates: result.newDueDates,
+      splitRows: {
+        ...prevData.splitRows,
+        [originalKey]: undefined,
+      },
+    }));
   };
 
   const handleDateChange = (index, date) => {
-    const { newDueDates, updatedSelectedDates } = handleDateChangeHandler(index, date, dueDates, selectedDates);
-    setDueDates(newDueDates);
-    setSelectedDates(updatedSelectedDates);
+    const { newDueDates, updatedSelectedDates } = handleDateChangeHandler(
+      index,
+      date,
+      dueDates,
+      selectedDates
+    );
+    setInstallmentData(prevData => ({
+      ...prevData,
+      dueDates: newDueDates,
+      selectedDates: updatedSelectedDates,
+    }));
   };
 
   const validateDate = (date, index) => {
@@ -87,11 +128,11 @@ const useInstallmentLogic = () => {
 
   return {
     recommendedAmount,
-    setRecommendedAmount,
+    setRecommendedAmount: (value) => setInstallmentData(prevData => ({ ...prevData, recommendedAmount: value })),
     installmentCount,
-    setInstallmentCount,
+    setInstallmentCount: (value) => setInstallmentData(prevData => ({ ...prevData, installmentCount: value })),
     selectedInstallments,
-    setSelectedInstallments,
+    setSelectedInstallments: (value) => setInstallmentData(prevData => ({ ...prevData, selectedInstallments: value })),
     installments,
     dueDates,
     mergedRows,
@@ -102,7 +143,7 @@ const useInstallmentLogic = () => {
     splitInstallments,
     revertSplit,
     validateDate,
-    selectedDates
+    selectedDates,
   };
 };
 

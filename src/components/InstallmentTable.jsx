@@ -10,7 +10,6 @@ const InstallmentTable = ({
   setSelectedInstallments,
   unmergeInstallments,
   handleDateChange,
-  splitInstallments,
   revertSplit,
   validateDate,
   selectedDates

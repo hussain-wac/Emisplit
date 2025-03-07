@@ -9,14 +9,12 @@ export const splitInstallment = (selectedInstallments, installments, dueDates) =
 
   const index = selectedInstallments[0];
   const installment = installments[index];
-  // Use the actual Date object from dueDates rather than the formatted string
+
   const parentDate = dueDates[index];
   const splitCount = 2;
   const splitAmount = parseFloat(installment.amount) / splitCount;
 
-  // Create two split installments:
-  // - The first split (e.g. 1.1) inherits the parent's Date object.
-  // - The second split (e.g. 1.2) has no date (null) so the user can select one.
+
   const firstSplit = {
     ...installment,
     amount: splitAmount.toFixed(2),
@@ -32,7 +30,7 @@ export const splitInstallment = (selectedInstallments, installments, dueDates) =
     installmentNo: `${installment.installmentNo}.2`,
     isSplit: true,
     originalKey: installment.installmentNo,
-    dueDate: null // allow user to pick a date
+    dueDate: null 
   };
 
   // Update installments: remove the original installment and insert the two splits.
