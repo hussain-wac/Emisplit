@@ -51,22 +51,23 @@ const useInstallmentLogic = () => {
       return newMerged;
     });
   };
-
   const splitInstallments = () => {
-    const result = splitInstallment(selectedInstallments, installments);
+    const result = splitInstallment(selectedInstallments, installments, dueDates);
     if (result.error) return;
     setInstallments(result.newInstallments);
+    setDueDates(result.newDueDates);
     setSplitRows(prev => ({
       ...prev,
       [result.splitData.original.installmentNo]: result.splitData
     }));
     setSelectedInstallments([]);
   };
-
+  
   const revertSplit = (originalKey) => {
-    const result = revertSplitHelper(originalKey, splitRows, installments);
+    const result = revertSplitHelper(originalKey, splitRows, installments, dueDates);
     if (result.error) return;
     setInstallments(result.newInstallments);
+    setDueDates(result.newDueDates);
     setSplitRows(prev => {
       const newSplit = { ...prev };
       delete newSplit[originalKey];
