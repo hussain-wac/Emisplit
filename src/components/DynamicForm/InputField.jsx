@@ -1,15 +1,16 @@
-import React from 'react';
-import { useField } from 'informed';
+import React from "react";
+import { useField } from "informed";
 
 const InputField = ({ field, validate }) => {
   const { id, label, type, placeholder, required } = field;
   const {
     fieldState: { value, error },
-    fieldApi: { setValue },ref
+    fieldApi: { setValue },
+    ref,
   } = useField({
     name: id,
     validate,
-    validateOn: 'change',
+    validateOn: "change",
   });
 
   const handleChange = (event) => {
@@ -25,7 +26,7 @@ const InputField = ({ field, validate }) => {
         name={id}
         ref={ref}
         type={type}
-        value={value || ''}
+        value={value || ""}
         onChange={handleChange}
         placeholder={placeholder}
         required={required}

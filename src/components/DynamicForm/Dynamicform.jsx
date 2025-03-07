@@ -5,8 +5,13 @@ import "react-toastify/dist/ReactToastify.css";
 import CustomField from "./CustomField";
 import useDynamicForm from "./hooks/useDynamicForm";
 const DynamicForm = () => {
-  const { formApiref, handleSubmit, initialValues, getValidationFunction, formData } =
-    useDynamicForm();
+  const {
+    formApiref,
+    handleSubmit,
+    initialValues,
+    getValidationFunction,
+    formData,
+  } = useDynamicForm();
 
   return (
     <div className="bg-gray-50 py-8 px-4">

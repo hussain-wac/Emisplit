@@ -54,12 +54,11 @@ const InstallmentTable = ({
               className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               dateFormat="dd/MM/yyyy"
               placeholderText="dd/mm/yyyy"
-              disabled={installment.isMerged}
               minDate={new Date()}
               shouldCloseOnSelect={false}
               filterDate={(date) => validateDate(date, index)}
               excludeDates={selectedDates
-                .filter(dateStr => dateStr) // Ensure only valid dates
+                .filter(dateStr => dateStr)
                 .map(dateStr => new Date(dateStr))
               }
             />

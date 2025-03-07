@@ -1,15 +1,16 @@
-import React from 'react';
-import { useField } from 'informed';
+import React from "react";
+import { useField } from "informed";
 
 const RadioGroup = ({ field, validate }) => {
   const { id, label, options, required } = field;
   const {
     fieldState: { value, error },
-    fieldApi: { setValue },ref
+    fieldApi: { setValue },
+    ref,
   } = useField({
     name: id,
     validate,
-    validateOn: 'change',
+    validateOn: "change",
   });
 
   return (

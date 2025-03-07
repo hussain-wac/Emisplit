@@ -1,14 +1,15 @@
-import React from 'react';
-import { useField, useFormState } from 'informed';
+import React from "react";
+import { useField, useFormState } from "informed";
 const CheckboxGroup = ({ field, validate }) => {
   const { id, label, options, required } = field;
   const {
     fieldState: { value, error, dirty },
-    fieldApi: { setValue },ref
+    fieldApi: { setValue },
+    ref,
   } = useField({
     name: id,
     validate,
-    validateOn: 'change',
+    validateOn: "change",
   });
 
   const { submitted } = useFormState();
