@@ -1,7 +1,7 @@
 import React from "react";
 import InstallmentForm from "./InstallmentForm";
 import InstallmentTable from "./InstallmentTable";
-import useInstallmentLogic from "./useInstallmentLogic";
+import useInstallmentLogic from "../hooks/useInstallmentLogic";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,8 +15,6 @@ const EmiForm = () => {
     setSelectedInstallments,
     installments,
     dueDates,
-    mergedRows,
-    splitRows,
     mergeInstallments,
     unmergeInstallments,
     handleDateChange,
