@@ -1,0 +1,84 @@
+[
+  {
+    "id": "name",
+    "label": "Full Name",
+    "type": "text",
+    "placeholder": "Enter your full name",
+    "required": true
+  },
+  {
+    "id": "email",
+    "label": "Email Address",
+    "type": "email",
+    "placeholder": "Enter your email",
+    "required": true
+  },
+  {
+    "id": "phone",
+    "label": "Phone Number",
+    "type": "tel",
+    "placeholder": "Enter your phone number",
+    "required": false
+  },
+  {
+    "id": "gender",
+    "label": "Gender",
+    "type": "radio",
+    "options": [
+      { "label": "Male", "value": "male" },
+      { "label": "Female", "value": "female" },
+      { "label": "Other", "value": "other" }
+    ],
+    "required": true
+  },
+  {
+    "id": "dob",
+    "label": "Date of Birth",
+    "type": "date",
+    "required": true
+  },
+  {
+    "id": "country",
+    "label": "Country",
+    "type": "select",
+    "options": [
+      { "label": "United States", "value": "us" },
+      { "label": "India", "value": "in" },
+      { "label": "Canada", "value": "ca" },
+      { "label": "United Kingdom", "value": "uk" }
+    ],
+    "required": true
+  },
+  {
+    "id": "address",
+    "label": "Address",
+    "type": "textarea",
+    "placeholder": "Enter your full address",
+    "required": false
+  },
+  {
+    "id": "resume",
+    "label": "Upload Resume",
+    "type": "file",
+    "accept": ".pdf,.jpg,.png",
+    "required": true
+  },
+  {
+    "id": "skills",
+    "label": "Select Your Skills",
+    "type": "checkbox-group",
+    "options": [
+      { "label": "JavaScript", "value": "javascript" },
+      { "label": "Python", "value": "python" },
+      { "label": "Java", "value": "java" },
+      { "label": "React", "value": "react" }
+    ],
+    "required": true
+  },
+  {
+    "id": "terms",
+    "label": "Accept Terms & Conditions",
+    "type": "checkbox",
+    "required": true
+  }
+]

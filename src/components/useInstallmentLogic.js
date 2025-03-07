@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { SplitIcon, ListIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const useInstallmentLogic = () => {
