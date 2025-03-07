@@ -12,8 +12,7 @@ export const calculateInstallments = (recommendedAmount, installmentCount, dueDa
         isSplit: false,
         originalKey: null,
         dueDate: dueDates[index]
-          ? dueDates[index].toISOString().split('T')[0]
-          : 'eg: 01 Jan 20'
+        
       }));
       const newDueDates = [...Array(count)].fill(null);
       return { installments, newDueDates };

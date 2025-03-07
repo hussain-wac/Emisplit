@@ -6,7 +6,7 @@ import DynamicForm from "./components/DynamicForm/Dynamicform";
 function App() {
   return (
     <Router>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <div className="flex flex-col items-center justify-center  bg-gray-100 p-2">
         <h1 className="text-2xl font-bold mb-4">Select Form</h1>
 
         {/* Navigation Buttons */}
@@ -24,7 +24,7 @@ function App() {
         </div>
 
         {/* Form Container */}
-        <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg">
+        <div className="w-full max-w-4xl bg-white  rounded-lg shadow-lg">
           <Routes>
             <Route path="/emi" element={<EmiForm />} />
             <Route path="/dynamic" element={<DynamicForm />} />

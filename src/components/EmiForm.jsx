@@ -1,9 +1,10 @@
-import React from "react";
-import InstallmentForm from "./InstallmentForm";
-import InstallmentTable from "./InstallmentTable";
-import useInstallmentLogic from "../hooks/useInstallmentLogic";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React from 'react';
+import InstallmentForm from './InstallmentForm';
+import InstallmentTable from './InstallmentTable';
+import useInstallmentLogic from '../hooks/useInstallmentLogic';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Merge, Split, Send, FileText } from 'lucide-react';
 
 const EmiForm = () => {
   const {
@@ -15,15 +16,16 @@ const EmiForm = () => {
     setSelectedInstallments,
     installments,
     dueDates,
-    mergeInstallments,
-    unmergeInstallments,
+    handleMergeInstallments,
+    handleUnmergeInstallments,
     handleDateChange,
-    splitInstallments,
-    revertSplit,
+    handleSplitInstallment,
+    handleRevertSplit,
     validateDate,
     selectedDates,
   } = useInstallmentLogic();
 
+  // Handle form submission
   const handleSubmit = () => {
     const submissionData = {
       recommendedAmount,
@@ -31,102 +33,75 @@ const EmiForm = () => {
       installments: installments.map((installment, index) => ({
         installmentNo: installment.installmentNo,
         amount: installment.amount,
-        dueDate: dueDates[index] ? dueDates[index].toISOString().split('T')[0] : null, 
+        dueDate: dueDates[index] ? dueDates[index].toISOString().split('T')[0] : null,
         isMerged: installment.isMerged || false,
         isSplit: installment.isSplit || false,
       })),
     };
-  
-    console.log("Submitted Data:", submissionData); 
+    console.log('Submitted Data:', submissionData);
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 max-w-5xl">
       <ToastContainer position="top-right" autoClose={5000} />
-      <h1 className="text-3xl font-bold mb-6 text-gray-900">
-        Installment Payment Form
-      </h1>
+      <header className="flex items-center mb-8">
+        <FileText className="w-8 h-8 mr-3 text-blue-600" />
+        <h1 className="text-3xl font-bold text-gray-900">Installment Payment Planner</h1>
+      </header>
+
       <InstallmentForm
         recommendedAmount={recommendedAmount}
         setRecommendedAmount={setRecommendedAmount}
         installmentCount={installmentCount}
         setInstallmentCount={setInstallmentCount}
       />
-      <h2 className="text-2xl font-semibold my-6 text-gray-900">
-        Installment Details
-      </h2>
+
+      <section className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Installment Details</h2>
+      </section>
+
       <InstallmentTable
         installments={installments}
         dueDates={dueDates}
         selectedInstallments={selectedInstallments}
         setSelectedInstallments={setSelectedInstallments}
-        unmergeInstallments={unmergeInstallments}
+        handleUnmergeInstallments={handleUnmergeInstallments}
         handleDateChange={handleDateChange}
-        splitInstallments={splitInstallments}
-        revertSplit={revertSplit}
+        handleSplitInstallment={handleSplitInstallment}
+        handleRevertSplit={handleRevertSplit}
         validateDate={validateDate}
         selectedDates={selectedDates}
       />
-      <div className="mt-6 flex justify-end space-x-4">
+
+      <footer className="mt-8 flex justify-end space-x-4">
         <button
-          type="button"
-          className={`flex items-center px-4 py-2 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 ${
-            selectedInstallments && selectedInstallments.length < 2
-              ? "opacity-50 cursor-not-allowed"
-              : ""
+          className={`flex items-center px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors ${
+            selectedInstallments.length < 2 ? 'opacity-50 cursor-not-allowed' : ''
           }`}
-          onClick={mergeInstallments}
-          disabled={selectedInstallments && selectedInstallments.length < 2}
+          onClick={handleMergeInstallments}
+          disabled={selectedInstallments.length < 2}
         >
-          <svg
-            className="w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <Merge className="w-4 h-4 mr-2" />
           Merge Selected
         </button>
         <button
-          type="button"
-          className={`flex items-center px-4 py-2 text-sm text-white bg-green-500 rounded-md hover:bg-green-600 ${
-            selectedInstallments && selectedInstallments.length !== 1
-              ? "opacity-50 cursor-not-allowed"
-              : ""
+          className={`flex items-center px-4 py-3 text-sm font-medium text-white bg-green-600 rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors ${
+            selectedInstallments.length !== 1 ? 'opacity-50 cursor-not-allowed' : ''
           }`}
-          onClick={splitInstallments}
-          disabled={selectedInstallments && selectedInstallments.length !== 1}
+          onClick={handleSplitInstallment}
+          disabled={selectedInstallments.length !== 1}
         >
-          <svg
-            className="w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <Split className="w-4 h-4 mr-2" />
           Split Selected
         </button>
-
         <button
-          type="button"
-          className="flex items-center px-4 py-2 text-sm text-white bg-purple-500 rounded-md hover:bg-purple-600"
+          className="flex items-center px-4 py-3 text-sm font-medium text-white bg-purple-600 rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-colors"
           onClick={handleSubmit}
         >
+          <Send className="w-4 h-4 mr-2" />
           Submit
         </button>
-      </div>
+      </footer>
     </div>
   );
 };

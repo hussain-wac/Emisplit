@@ -1,149 +1,137 @@
-import { useState, useEffect } from 'react';
-import { calculateInstallments as calcInstallments } from './installments/calculateInstallments';
-import { mergeInstallments as merge, unmergeInstallments as unmerge } from './installments/mergeInstallments';
-import { splitInstallment, revertSplit as revertSplitHelper } from './installments/splitInstallments';
-import { handleDateChange as handleDateChangeHandler, validateDate as validateDateHandler } from './installments/dateHandlers';
+import { useState } from 'react';
 
 const useInstallmentLogic = () => {
-  const [installmentData, setInstallmentData] = useState({
-    recommendedAmount: '',
-    installmentCount: '',
-    selectedInstallments: [],
-    installments: [],
-    dueDates: [],
-    mergedRows: {},
-    splitRows: {},
-    selectedDates: [],
-  });
+  const [installments, setInstallments] = useState([
+    { checked: false, insnumber: 1, amount: '100', duedate: '2023-01-01', show: true },
+    { checked: false, insnumber: 2, amount: '100', duedate: '2023-02-01', show: true },
+    { checked: false, insnumber: 3, amount: '100', duedate: '2023-03-01', show: true },
+  ]);
 
-  const {
-    recommendedAmount,
-    installmentCount,
-    selectedInstallments,
-    installments,
-    dueDates,
-    mergedRows,
-    splitRows,
-    selectedDates,
-  } = installmentData;
+  const [selectedIndexes, setSelectedIndexes] = useState([]);
 
-  useEffect(() => {
-    if (recommendedAmount && installmentCount) {
-      const { installments: newInstallments, newDueDates } = calcInstallments(
-        recommendedAmount,
-        installmentCount,
-        dueDates
-      );
-      setInstallmentData(prevData => ({
-        ...prevData,
-        installments: newInstallments,
-        dueDates: newDueDates,
-        selectedDates: newDueDates.map(() => null),
-        selectedInstallments: [],
-   
-      }));
-
-  
+  // Toggle selection
+  const toggleSelection = (index) => {
+    if (selectedIndexes.includes(index)) {
+      setSelectedIndexes(selectedIndexes.filter((i) => i !== index));
+    } else {
+      setSelectedIndexes([...selectedIndexes, index]);
     }
-  }, [recommendedAmount, installmentCount]);
-
-  const mergeInstallments = () => {
-    const result = merge(selectedInstallments, installments, dueDates);
-    if (result.error) return;
-    setInstallmentData(prevData => ({
-      ...prevData,
-      mergedRows: {
-        ...prevData.mergedRows,
-        [result.mergedData.mergedKey]: {
-          indexes: result.mergedData.indexes,
-          originalInstallments: result.mergedData.originalInstallments,
-          originalDueDates: result.mergedData.originalDueDates,
-        },
-      },
-      installments: result.newInstallments,
-      dueDates: result.newDueDates,
-      selectedInstallments: [],
-    }));
-  };
-
-  const unmergeInstallments = (mergedKey) => {
-    const result = unmerge(mergedKey, mergedRows, installments, dueDates);
-    setInstallmentData(prevData => ({
-      ...prevData,
-      installments: result.newInstallments,
-      dueDates: result.newDueDates,
-      mergedRows: {
-        ...prevData.mergedRows,
-        [mergedKey]: undefined,
-      },
-    }));
-  };
-
-  const splitInstallments = () => {
-    const result = splitInstallment(selectedInstallments, installments, dueDates);
-    if (result.error) return;
-    setInstallmentData(prevData => ({
-      ...prevData,
-      installments: result.newInstallments,
-      dueDates: result.newDueDates,
-      splitRows: {
-        ...prevData.splitRows,
-        [result.splitData.original.installmentNo]: result.splitData,
-      },
-      selectedInstallments: [],
-    }));
-  };
-
-  const revertSplit = (originalKey) => {
-    const result = revertSplitHelper(originalKey, splitRows, installments, dueDates);
-    if (result.error) return;
-    setInstallmentData(prevData => ({
-      ...prevData,
-      installments: result.newInstallments,
-      dueDates: result.newDueDates,
-      splitRows: {
-        ...prevData.splitRows,
-        [originalKey]: undefined,
-      },
-    }));
-  };
-
-  const handleDateChange = (index, date) => {
-    const { newDueDates, updatedSelectedDates } = handleDateChangeHandler(
-      index,
-      date,
-      dueDates,
-      selectedDates
+    setInstallments((prev) =>
+      prev.map((inst, i) =>
+        i === index ? { ...inst, checked: !inst.checked } : inst
+      )
     );
-    setInstallmentData(prevData => ({
-      ...prevData,
-      dueDates: newDueDates,
-      selectedDates: updatedSelectedDates,
-    }));
   };
 
-  const validateDate = (date, index) => {
-    return validateDateHandler(date, index, dueDates, selectedDates);
+  // Merge selected installments
+  const handleMerge = () => {
+    if (selectedIndexes.length < 2) {
+      alert('Select at least two installments to merge.');
+      return;
+    }
+
+    const selected = selectedIndexes.map((idx) => installments[idx]);
+    const totalAmount = selected
+      .reduce((sum, inst) => sum + parseFloat(inst.amount), 0)
+      .toFixed(2);
+    const mergedInsNumber = selected.map((inst) => inst.insnumber).join(' + ');
+    const mergedDueDate = selected[0].duedate;
+
+    const mergedInstallment = {
+      checked: false,
+      insnumber: mergedInsNumber,
+      amount: totalAmount,
+      duedate: mergedDueDate,
+      show: true,
+      isMerged: true,
+      originalIndexes: selectedIndexes,
+    };
+
+    setInstallments((prev) =>
+      prev
+        .map((inst, idx) =>
+          selectedIndexes.includes(idx) ? { ...inst, show: false } : inst
+        )
+        .concat(mergedInstallment)
+    );
+    setSelectedIndexes([]);
+  };
+
+  // Unmerge an installment
+  const handleUnmerge = (mergedInstallment) => {
+    setInstallments((prev) =>
+      prev
+        .map((inst, idx) =>
+          mergedInstallment.originalIndexes.includes(idx)
+            ? { ...inst, show: true }
+            : inst
+        )
+        .filter((inst) => inst.insnumber !== mergedInstallment.insnumber)
+    );
+  };
+
+  // Split an installment
+  const handleSplit = () => {
+    if (selectedIndexes.length !== 1) {
+      alert('Select exactly one installment to split.');
+      return;
+    }
+
+    const index = selectedIndexes[0];
+    const installment = installments[index];
+    const splitAmount = (parseFloat(installment.amount) / 2).toFixed(2);
+
+    const split1 = {
+      checked: false,
+      insnumber: `${installment.insnumber}.1`,
+      amount: splitAmount,
+      duedate: installment.duedate,
+      show: true,
+      isSplit: true,
+      originalInsNumber: installment.insnumber,
+    };
+    const split2 = {
+      checked: false,
+      insnumber: `${installment.insnumber}.2`,
+      amount: splitAmount,
+      duedate: null,
+      show: true,
+      isSplit: true,
+      originalInsNumber: installment.insnumber,
+    };
+
+    setInstallments((prev) =>
+      prev
+        .map((inst, idx) =>
+          idx === index ? { ...inst, show: false } : inst
+        )
+        .concat([split1, split2])
+    );
+    setSelectedIndexes([]);
+  };
+
+  // Revert split
+  const handleRevertSplit = (originalInsNumber) => {
+    setInstallments((prev) =>
+      prev
+        .map((inst) =>
+          inst.insnumber === originalInsNumber
+            ? { ...inst, show: true }
+            : inst.originalInsNumber === originalInsNumber
+            ? { ...inst, show: false }
+            : inst
+        )
+    );
   };
 
   return {
-    recommendedAmount,
-    setRecommendedAmount: (value) => setInstallmentData(prevData => ({ ...prevData, recommendedAmount: value })),
-    installmentCount,
-    setInstallmentCount: (value) => setInstallmentData(prevData => ({ ...prevData, installmentCount: value })),
-    selectedInstallments,
-    setSelectedInstallments: (value) => setInstallmentData(prevData => ({ ...prevData, selectedInstallments: value })),
     installments,
-    dueDates,
-    mergedRows,
-    splitRows,
-    mergeInstallments,
-    unmergeInstallments,
-    handleDateChange,
-    splitInstallments,
-    revertSplit,
-    validateDate,
-    selectedDates,
+    selectedIndexes,
+    toggleSelection,
+    handleMerge,
+    handleUnmerge,
+    handleSplit,
+    handleRevertSplit,
   };
 };
 
