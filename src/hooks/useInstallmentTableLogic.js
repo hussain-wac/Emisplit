@@ -3,10 +3,29 @@ import { toast } from "react-toastify";
 
 export const useInstallmentTableLogic = (installments, setInstallments) => {
   const [dateError, setDateError] = useState({});
+  const [startDate, setStartDate] = useState(null); // Track the start date for installments
+
   const handleDateChange = (index, event) => {
     const updatedInstallments = [...installments];
     const newDate = event.target.value;
 
+    // If this is the first installment and the start date is not set, set the start date
+    if (index === 0 && !startDate) {
+      setStartDate(newDate);
+      // Automatically fill all due dates sequentially from the selected start date
+      const updatedInstallmentsWithDates = updatedInstallments.map((installment, idx) => {
+        const dueDate = new Date(newDate);
+        dueDate.setMonth(dueDate.getMonth() + idx); // Increment the month for each installment
+        installment.dueDate = dueDate.toISOString().split("T")[0]; // Set the due date in 'YYYY-MM-DD' format
+        return installment;
+      });
+
+      setInstallments(updatedInstallmentsWithDates);
+      toast.success("Installments dates filled sequentially.");
+      return; // Exit to avoid further processing for this scenario
+    }
+
+    // Get previous and next installment due dates
     const prevDate = index > 0 ? updatedInstallments[index - 1].dueDate : null;
     const nextDate =
       index < updatedInstallments.length - 1
@@ -32,11 +51,13 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
       return;
     }
 
+    // Update the due date for the current installment
     updatedInstallments[index].dueDate = newDate;
     setInstallments(updatedInstallments);
 
     toast.success("Due date updated successfully.");
 
+    // Clear the error for this installment if it's valid
     setDateError((prevErrors) => {
       const updatedErrors = { ...prevErrors };
       delete updatedErrors[index];
@@ -44,6 +65,7 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
     });
   };
 
+  // Sort installments by installment number (handling decimal installment numbers)
   const sortedInstallments = [...installments].sort((a, b) => {
     const numA = a.installmentNumber.includes(".")
       ? parseFloat(a.installmentNumber)

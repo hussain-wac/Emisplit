@@ -1,20 +1,27 @@
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 export const useSplit = (installments, setInstallments) => {
   const handleSplitInstallment = (id) => {
     if (!id) {
       return;
     }
 
-    const installmentToSplit = installments.find(inst => inst.id === id);
+    const installmentToSplit = installments.find((inst) => inst.id === id);
     if (!installmentToSplit) {
       return;
     }
 
+
+    if (!installmentToSplit.dueDate) {
+      toast.error("Please ensure the selected installment has a due date.");
+      return;
+    }
     const key = "installmentNumber";
     const installmentValue = installmentToSplit[key].toString();
 
-    if (installmentValue.includes(".")|| installmentValue.includes("+")) {
-      toast.error("Invalid installment number. Only whole numbers can be split.");
+    if (installmentValue.includes(".") || installmentValue.includes("+")) {
+      toast.error(
+        "Invalid installment number. Only whole numbers can be split."
+      );
       return;
     }
 
@@ -23,7 +30,6 @@ export const useSplit = (installments, setInstallments) => {
 
     const newId1 = Date.now();
     const newId2 = Date.now() + 1;
-
 
     const splitInstallment1 = {
       ...installmentToSplit,
@@ -47,10 +53,11 @@ export const useSplit = (installments, setInstallments) => {
       selected: false,
     };
 
-    const updatedInstallments = installments.map(inst =>
-      inst.id === installmentToSplit.id ? { ...inst, show: false, selected: false } : inst
+    const updatedInstallments = installments.map((inst) =>
+      inst.id === installmentToSplit.id
+        ? { ...inst, show: false, selected: false }
+        : inst
     );
-
 
     updatedInstallments.push(splitInstallment1, splitInstallment2);
 
@@ -66,7 +73,7 @@ export const useSplit = (installments, setInstallments) => {
   };
 
   const handleUnsplitInstallment = (id) => {
-    const installmentToUnsplit = installments.find(inst => inst.id === id);
+    const installmentToUnsplit = installments.find((inst) => inst.id === id);
     if (!installmentToUnsplit || !installmentToUnsplit.splitFrom) {
       return;
     }
@@ -75,7 +82,7 @@ export const useSplit = (installments, setInstallments) => {
     const originalId = installmentToUnsplit.splitFrom;
     let restoredInstallment = null;
 
-    const filteredInstallments = installments.filter(inst => {
+    const filteredInstallments = installments.filter((inst) => {
       if (inst.id === originalId) {
         restoredInstallment = { ...inst, show: true, selected: false };
         return false;

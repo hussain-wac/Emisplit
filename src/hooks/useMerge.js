@@ -11,6 +11,12 @@ export const useMerge = (installments, setInstallments) => {
       return;
     }
 
+    const hasDate = visibleSelected.every((inst) => inst.dueDate);
+    if (!hasDate) {
+      toast.error("Please ensure all selected installments have a due date.");
+      return;
+    }
+
     const sortedInstallments = visibleSelected.sort((a, b) => a.id - b.id);
     const isConsecutive = sortedInstallments.every((inst, index, arr) => {
       if (index === 0) return true;
