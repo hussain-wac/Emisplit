@@ -1,11 +1,29 @@
+// InstallmentTable.js
 import React from "react";
 
-function InstallmentTable({ installments, setInstallments, onSelectInstallment, onUnmergeInstallment }) {
+function InstallmentTable({
+  installments,
+  setInstallments,
+  onSelectInstallment,
+  onUnmergeInstallment,
+  handleUnsplitInstallment,
+}) {
   const handleDateChange = (index, event) => {
     const updatedInstallments = [...installments];
     updatedInstallments[index].dueDate = event.target.value;
     setInstallments(updatedInstallments);
   };
+
+  // Sort installments by their installment number or ID
+  const sortedInstallments = [...installments].sort((a, b) => {
+    const numA = a.installmentNumber.includes(".")
+      ? parseFloat(a.installmentNumber)
+      : parseInt(a.installmentNumber);
+    const numB = b.installmentNumber.includes(".")
+      ? parseFloat(b.installmentNumber)
+      : parseInt(b.installmentNumber);
+    return numA - numB;
+  });
 
   return (
     <div className="mt-6 p-4 border rounded shadow-md">
@@ -21,7 +39,7 @@ function InstallmentTable({ installments, setInstallments, onSelectInstallment, 
           </tr>
         </thead>
         <tbody>
-          {installments
+          {sortedInstallments
             .filter((installment) => installment.show)
             .map((installment, index) => (
               <tr key={installment.id} className="text-center">
@@ -32,8 +50,12 @@ function InstallmentTable({ installments, setInstallments, onSelectInstallment, 
                     onChange={() => onSelectInstallment(installment.id)}
                   />
                 </td>
-                <td className="border border-gray-300 p-2">{installment.installmentNumber}</td>
-                <td className="border border-gray-300 p-2">₹{installment.amount.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">
+                  {installment.installmentNumber}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  ₹{installment.amount.toFixed(2)}
+                </td>
                 <td className="border border-gray-300 p-2">
                   <input
                     type="date"
@@ -43,12 +65,23 @@ function InstallmentTable({ installments, setInstallments, onSelectInstallment, 
                   />
                 </td>
                 <td className="border border-gray-300 p-2">
-                  {installment.originalData && (
+                  {/* If the installment is a merged installment (assumed to have '+' in number) */}
+                  {installment.installmentNumber.includes("+") && (
                     <button
                       onClick={() => onUnmergeInstallment(installment.id)}
                       className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       Unmerge
+                    </button>
+                  )}
+
+                  {/* If the installment is a split installment (has a dot) */}
+                  {installment.installmentNumber.includes(".") && (
+                    <button
+                      onClick={() => handleUnsplitInstallment(installment.id)}
+                      className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 ml-2"
+                    >
+                      Unsplit
                     </button>
                   )}
                 </td>
