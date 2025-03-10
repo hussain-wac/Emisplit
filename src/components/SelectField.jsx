@@ -2,7 +2,7 @@ import React from "react";
 import { useField } from "informed";
 
 const SelectField = ({ field }) => {
-  const { id, label, required, options } = field;
+  const { id, label, required, options, disabled } = field;
   const {
     fieldState: { value, error },
     fieldApi: { setValue },
@@ -18,6 +18,7 @@ const SelectField = ({ field }) => {
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <select
+        disabled={disabled}
         name={id}
         ref={ref}
         value={value || ""}
