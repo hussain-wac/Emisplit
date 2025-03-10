@@ -41,7 +41,6 @@ const useDynamicForm = () => {
   const formApiref = useRef();
 
   const handleSubmit = ({values}) => {
-    console.log("Form values:", values);
     formApiref.current.reset();
 
     toast.success("Form submitted successfully!", {

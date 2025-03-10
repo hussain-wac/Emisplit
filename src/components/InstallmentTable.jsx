@@ -114,12 +114,6 @@ function InstallmentTable({
                         value={installment.dueDate}
                         onChange={(event) => handleDateValidation(index, event)}
                         className="pl-10 border border-gray-300 bg-white rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        min={index > 0 ? sortedInstallments[index - 1].dueDate : null}
-                        max={
-                          index < sortedInstallments.length - 1
-                            ? sortedInstallments[index + 1].dueDate
-                            : null
-                        }
                       />
                       {dateError[index] && (
                         <div className="text-xs text-red-500 mt-1">
