@@ -5,6 +5,7 @@ import { useEmi } from "../hooks/useEmi";
 import { useMerge } from "../hooks/useMerge";
 import { useSplit } from "../hooks/useSplit";
 import { Layers, Scissors, AlertTriangle } from "lucide-react";
+import { ToastContainer, toast } from 'react-toastify';
 
 function EmiForm() {
   const {
@@ -58,6 +59,7 @@ function EmiForm() {
       <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         EMI Calculator & Manager
       </h1>
+      <ToastContainer />
 
       <InstallmentForm handleChange={handleChange} />
 

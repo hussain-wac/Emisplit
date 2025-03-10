@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 export const useSplit = (installments, setInstallments) => {
   const handleSplitInstallment = (id) => {
     if (!id) {
@@ -12,9 +13,11 @@ export const useSplit = (installments, setInstallments) => {
     const key = "installmentNumber";
     const installmentValue = installmentToSplit[key].toString();
 
-    if (installmentValue.includes(".")) {
+    if (installmentValue.includes(".")|| installmentValue.includes("+")) {
+      toast.error("Invalid installment number. Only whole numbers can be split.");
       return;
     }
+
 
     const splitAmount = parseFloat((installmentToSplit.amount / 2).toFixed(10));
 

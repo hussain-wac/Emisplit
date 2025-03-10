@@ -28,7 +28,7 @@ export const useEmi = () => {
     );
     setInstallments(updatedInstallments);
   };
-
+  console.log(installments)
   return {
     installments,
     handleChange,

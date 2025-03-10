@@ -9,7 +9,7 @@ function InstallmentTable({
   onUnmergeInstallment,
   handleUnsplitInstallment,
 }) {
-  const { sortedInstallments, handleDateChange } = useInstallmentTableLogic(
+  const { sortedInstallments, handleDateChange, getMinMaxDate } = useInstallmentTableLogic(
     installments,
     setInstallments
   );
@@ -77,77 +77,82 @@ function InstallmentTable({
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedInstallments
               .filter((installment) => installment.show)
-              .map((installment, index) => (
-                <tr
-                  key={installment.id}
-                  className={`hover:bg-gray-50 transition-colors ${
-                    installment.selected ? "bg-indigo-50" : ""
-                  }`}
-                >
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={installment.selected || false}
-                        onChange={() => onSelectInstallment(installment.id)}
-                        className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="px-2 py-1 text-sm font-medium bg-gray-100 rounded-full">
-                      {installment.installmentNumber}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      ₹{installment.amount.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Calendar size={16} className="text-gray-400" />
+              .map((installment, index) => {
+                const { minDate, maxDate } = getMinMaxDate(index);
+                return (
+                  <tr
+                    key={installment.id}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      installment.selected ? "bg-indigo-50" : ""
+                    }`}
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={installment.selected || false}
+                          onChange={() => onSelectInstallment(installment.id)}
+                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
                       </div>
-                      <input
-                        type="date"
-                        value={installment.dueDate}
-                        onChange={(event) => handleDateValidation(index, event)}
-                        className="pl-10 border border-gray-300 bg-white rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      />
-                      {dateError[index] && (
-                        <div className="text-xs text-red-500 mt-1">
-                          {dateError[index]}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="px-2 py-1 text-sm font-medium bg-gray-100 rounded-full">
+                        {installment.installmentNumber}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        ₹{installment.amount.toFixed(2)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Calendar size={16} className="text-gray-400" />
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      {installment.installmentNumber.includes("+") && (
-                        <button
-                          onClick={() => onUnmergeInstallment(installment.id)}
-                          className="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white text-xs rounded-md hover:bg-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
-                        >
-                          <Scissors size={14} className="mr-1" />
-                          Unmerge
-                        </button>
-                      )}
-                      {installment.installmentNumber.includes(".") && (
-                        <button
-                          onClick={() =>
-                            handleUnsplitInstallment(installment.id)
-                          }
-                          className="inline-flex items-center px-3 py-1.5 bg-amber-500 text-white text-xs rounded-md hover:bg-amber-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-                        >
-                          <Layers size={14} className="mr-1" />
-                          Unsplit
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <input
+                          type="date"
+                          value={installment.dueDate}
+                          onChange={(event) => handleDateValidation(index, event)}
+                          min={minDate} // Set min date
+                          max={maxDate} // Set max date
+                          className="pl-10 border border-gray-300 bg-white rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        />
+                        {dateError[index] && (
+                          <div className="text-xs text-red-500 mt-1">
+                            {dateError[index]}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        {installment.installmentNumber.includes("+") && (
+                          <button
+                            onClick={() => onUnmergeInstallment(installment.id)}
+                            className="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white text-xs rounded-md hover:bg-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                          >
+                            <Scissors size={14} className="mr-1" />
+                            Unmerge
+                          </button>
+                        )}
+                        {installment.installmentNumber.includes(".") && (
+                          <button
+                            onClick={() =>
+                              handleUnsplitInstallment(installment.id)
+                            }
+                            className="inline-flex items-center px-3 py-1.5 bg-amber-500 text-white text-xs rounded-md hover:bg-amber-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                          >
+                            <Layers size={14} className="mr-1" />
+                            Unsplit
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
