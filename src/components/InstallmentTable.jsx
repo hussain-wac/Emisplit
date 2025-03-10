@@ -1,77 +1,54 @@
-import React from 'react';
-import useInstallmentLogic from '../hooks/useInstallmentLogic';
+import React from "react";
 
-const InstallmentTable = () => {
-  const {
-    installments,
-    selectedIndexes,
-    toggleSelection,
-    handleMerge,
-    handleUnmerge,
-    handleSplit,
-    handleRevertSplit,
-  } = useInstallmentLogic();
+function InstallmentTable({ installments, setInstallments, onSelectInstallment, onUnmergeInstallment }) {
+  const handleDateChange = (index, event) => {
+    const updatedInstallments = [...installments];
+    updatedInstallments[index].dueDate = event.target.value;
+    setInstallments(updatedInstallments);
+  };
 
   return (
-    <div>
-      <div className="mb-4">
-        <button
-          onClick={handleMerge}
-          className="mr-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Merge Selected
-        </button>
-        <button
-          onClick={handleSplit}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Split Selected
-        </button>
-      </div>
-      <table className="w-full border-collapse border">
+    <div className="mt-6 p-4 border rounded shadow-md">
+      <h2 className="text-lg font-semibold mb-4">Installment Breakdown</h2>
+      <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border p-2">Select</th>
-            <th className="border p-2">Installment #</th>
-            <th className="border p-2">Amount</th>
-            <th className="border p-2">Due Date</th>
-            <th className="border p-2">Actions</th>
+            <th className="border border-gray-300 p-2">Select</th>
+            <th className="border border-gray-300 p-2">Installment #</th>
+            <th className="border border-gray-300 p-2">Amount</th>
+            <th className="border border-gray-300 p-2">Due Date</th>
+            <th className="border border-gray-300 p-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           {installments
             .filter((installment) => installment.show)
             .map((installment, index) => (
-              <tr
-                key={`${installment.insnumber}-${index}`}
-                className={selectedIndexes.includes(index) ? 'bg-blue-100' : ''}
-              >
-                <td className="border p-2">
+              <tr key={installment.id} className="text-center">
+                <td className="border border-gray-300 p-2">
                   <input
                     type="checkbox"
-                    checked={installment.checked}
-                    onChange={() => toggleSelection(index)}
-                    disabled={installment.isMerged || installment.isSplit}
+                    checked={installment.selected || false}
+                    onChange={() => onSelectInstallment(installment.id)}
                   />
                 </td>
-                <td className="border p-2">{installment.insnumber}</td>
-                <td className="border p-2">{installment.amount}</td>
-                <td className="border p-2">{installment.duedate || 'No date'}</td>
-                <td className="border p-2">
-                  {installment.isMerged && (
+                <td className="border border-gray-300 p-2">{installment.installmentNumber}</td>
+                <td className="border border-gray-300 p-2">₹{installment.amount.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">
+                  <input
+                    type="date"
+                    value={installment.dueDate}
+                    onChange={(event) => handleDateChange(index, event)}
+                    className="border rounded p-1"
+                  />
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {installment.originalData && (
                     <button
-                      onClick={() => handleUnmerge(installment)}
-                      className="px-2 py-1 bg-red-500 text-white rounded"
+                      onClick={() => onUnmergeInstallment(installment.id)}
+                      className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       Unmerge
-                    </button>
-                  )}
-                  {installment.isSplit && (
-                    <button
-                      onClick={() => handleRevertSplit(installment.originalInsNumber)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Revert Split
                     </button>
                   )}
                 </td>
@@ -81,6 +58,6 @@ const InstallmentTable = () => {
       </table>
     </div>
   );
-};
+}
 
 export default InstallmentTable;

@@ -13,10 +13,8 @@ const FileInput = ({ field, validate }) => {
     validateOn: 'change',
   });
 
-  // Single state to hold preview URL and file type
   const [preview, setPreview] = useState({ url: null, type: null });
 
-  // Update preview when the informed value changes
   useEffect(() => {
     let newPreview = { url: null, type: null };
 
