@@ -9,8 +9,7 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
     const updatedInstallments = [...installments];
     const newDate = event.target.value;
 
-    // If this is the first installment and the start date is not set, set the start date
-    if (index === 0 && !startDate) {
+    if (index === 0 ) {
       setStartDate(newDate);
       // Automatically fill all due dates sequentially from the selected start date
       const updatedInstallmentsWithDates = updatedInstallments.map((installment, idx) => {
