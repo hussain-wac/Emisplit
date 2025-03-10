@@ -47,15 +47,13 @@ export const useSplit = (installments, setInstallments) => {
       selected: false,
     };
 
-    // Hide the original installment
     const updatedInstallments = installments.map(inst =>
       inst.id === installmentToSplit.id ? { ...inst, show: false, selected: false } : inst
     );
 
-    // Add the new split installments
+
     updatedInstallments.push(splitInstallment1, splitInstallment2);
 
-    // Sort installments by installmentNumber
     updatedInstallments.sort((a, b) => {
       const aVal = a[key].toString();
       const bVal = b[key].toString();
@@ -77,7 +75,6 @@ export const useSplit = (installments, setInstallments) => {
     const originalId = installmentToUnsplit.splitFrom;
     let restoredInstallment = null;
 
-    // Remove both split installments and the hidden original, then restore the original installment
     const filteredInstallments = installments.filter(inst => {
       if (inst.id === originalId) {
         restoredInstallment = { ...inst, show: true, selected: false };
@@ -95,7 +92,6 @@ export const useSplit = (installments, setInstallments) => {
 
     filteredInstallments.push(restoredInstallment);
 
-    // Sort the restored list
     filteredInstallments.sort((a, b) => {
       const aVal = a[key].toString();
       const bVal = b[key].toString();

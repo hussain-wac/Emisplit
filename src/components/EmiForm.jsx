@@ -29,7 +29,6 @@ function EmiForm() {
 
   const handleSplitClick = () => {
     if (selectedInstallments.length !== 1) {
-      // Using a more modern alert approach
       const alertDiv = document.createElement("div");
       alertDiv.className =
         "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50";

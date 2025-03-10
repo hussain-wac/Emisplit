@@ -1,7 +1,8 @@
-import { toast } from 'react-toastify';
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 export const useInstallmentTableLogic = (installments, setInstallments) => {
-  // Update the due date for a given installment with validation
+  const [dateError, setDateError] = useState({});
   const handleDateChange = (index, event) => {
     const updatedInstallments = [...installments];
     const newDate = event.target.value;
@@ -12,29 +13,37 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
         ? updatedInstallments[index + 1].dueDate
         : null;
 
-    // Convert string dates to Date objects for validation
     const newDateObj = new Date(newDate);
     const prevDateObj = prevDate ? new Date(prevDate) : null;
     const nextDateObj = nextDate ? new Date(nextDate) : null;
 
-    // Validate the new date
     if (
-      (prevDateObj && newDateObj <= prevDateObj) || // Prevents selecting the same or earlier date
-      (nextDateObj && newDateObj >= nextDateObj)    // Prevents selecting the same or later date
+      (prevDateObj && newDateObj <= prevDateObj) ||
+      (nextDateObj && newDateObj >= nextDateObj)
     ) {
-      // Show error toast
-      toast.error("Invalid date selection. The due date must be strictly between the previous and next installment.");
-      return; // Exit early if the validation fails
+      toast.error(
+        "Invalid date selection. The due date must be strictly between the previous and next installment."
+      );
+
+      setDateError((prevErrors) => ({
+        ...prevErrors,
+        [index]: "Invalid date selection.",
+      }));
+      return;
     }
 
-    updatedInstallments[index].dueDate = newDate; // Update the installment's due date
+    updatedInstallments[index].dueDate = newDate;
     setInstallments(updatedInstallments);
 
-    // Show success toast
     toast.success("Due date updated successfully.");
+
+    setDateError((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      delete updatedErrors[index];
+      return updatedErrors;
+    });
   };
 
-  // Compute sorted installments based on installmentNumber
   const sortedInstallments = [...installments].sort((a, b) => {
     const numA = a.installmentNumber.includes(".")
       ? parseFloat(a.installmentNumber)
@@ -45,7 +54,6 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
     return numA - numB;
   });
 
-  // Function to return min and max date for each installment
   const getMinMaxDate = (index) => {
     const prevDate = index > 0 ? sortedInstallments[index - 1].dueDate : null;
     const nextDate =
@@ -53,8 +61,12 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
         ? sortedInstallments[index + 1].dueDate
         : null;
 
-    const minDate = prevDate ? new Date(prevDate).toISOString().split("T")[0] : null;
-    const maxDate = nextDate ? new Date(nextDate).toISOString().split("T")[0] : null;
+    const minDate = prevDate
+      ? new Date(prevDate).toISOString().split("T")[0]
+      : null;
+    const maxDate = nextDate
+      ? new Date(nextDate).toISOString().split("T")[0]
+      : null;
 
     return { minDate, maxDate };
   };
@@ -63,5 +75,7 @@ export const useInstallmentTableLogic = (installments, setInstallments) => {
     sortedInstallments,
     handleDateChange,
     getMinMaxDate,
+    dateError,
+    setDateError,
   };
 };

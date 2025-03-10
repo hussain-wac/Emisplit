@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useInstallmentTableLogic } from "../hooks/useInstallmentTableLogic";
 import { Calendar, Scissors, Layers, Check, ArrowUpDown } from "lucide-react";
 
@@ -9,28 +9,8 @@ function InstallmentTable({
   onUnmergeInstallment,
   handleUnsplitInstallment,
 }) {
-  const { sortedInstallments, handleDateChange, getMinMaxDate } = useInstallmentTableLogic(
-    installments,
-    setInstallments
-  );
-
-  const [dateError, setDateError] = useState({}); // State for tracking date errors
-
-  const handleDateValidation = (index, event) => {
-    const result = handleDateChange(index, event); // Call the logic to validate the date
-    if (result) {
-      setDateError((prevErrors) => ({
-        ...prevErrors,
-        [index]: result, // Store the error for the specific installment
-      }));
-    } else {
-      setDateError((prevErrors) => {
-        const updatedErrors = { ...prevErrors };
-        delete updatedErrors[index]; // Remove error if valid
-        return updatedErrors;
-      });
-    }
-  };
+  const { sortedInstallments, handleDateChange, getMinMaxDate, dateError } =
+    useInstallmentTableLogic(installments, setInstallments);
 
   return (
     <div className="mt-6 p-6 border border-gray-200 rounded-lg shadow-lg bg-white">
@@ -114,7 +94,7 @@ function InstallmentTable({
                         <input
                           type="date"
                           value={installment.dueDate}
-                          onChange={(event) => handleDateValidation(index, event)}
+                          onChange={(event) => handleDateChange(index, event)}
                           min={minDate} // Set min date
                           max={maxDate} // Set max date
                           className="pl-10 border border-gray-300 bg-white rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
