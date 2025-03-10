@@ -2,10 +2,9 @@ import { useState } from 'react';
 
 export const useEmi = () => {
   const [installments, setInstallments] = useState([]);
-  
+
   const handleChange = ({values}) => {
     
-    console.log(values)
     if (values.loanAmount && values.tenure) {
       const { loanAmount, tenure } = values;
       const installmentAmount = (loanAmount / tenure).toFixed(2);
@@ -28,7 +27,6 @@ export const useEmi = () => {
       inst.id === id ? { ...inst, selected: !inst.selected } : inst
     );
     setInstallments(updatedInstallments);
-    console.log(updatedInstallments)
   };
 
   return {
