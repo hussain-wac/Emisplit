@@ -1,5 +1,5 @@
-// InstallmentTable.js
 import React from "react";
+import { useInstallmentTableLogic } from "../hooks/useInstallmentTableLogic";
 
 function InstallmentTable({
   installments,
@@ -8,22 +8,7 @@ function InstallmentTable({
   onUnmergeInstallment,
   handleUnsplitInstallment,
 }) {
-  const handleDateChange = (index, event) => {
-    const updatedInstallments = [...installments];
-    updatedInstallments[index].dueDate = event.target.value;
-    setInstallments(updatedInstallments);
-  };
-
-  // Sort installments by their installment number or ID
-  const sortedInstallments = [...installments].sort((a, b) => {
-    const numA = a.installmentNumber.includes(".")
-      ? parseFloat(a.installmentNumber)
-      : parseInt(a.installmentNumber);
-    const numB = b.installmentNumber.includes(".")
-      ? parseFloat(b.installmentNumber)
-      : parseInt(b.installmentNumber);
-    return numA - numB;
-  });
+  const { sortedInstallments, handleDateChange } = useInstallmentTableLogic(installments, setInstallments);
 
   return (
     <div className="mt-6 p-4 border rounded shadow-md">
@@ -65,7 +50,6 @@ function InstallmentTable({
                   />
                 </td>
                 <td className="border border-gray-300 p-2">
-                  {/* If the installment is a merged installment (assumed to have '+' in number) */}
                   {installment.installmentNumber.includes("+") && (
                     <button
                       onClick={() => onUnmergeInstallment(installment.id)}
@@ -74,8 +58,6 @@ function InstallmentTable({
                       Unmerge
                     </button>
                   )}
-
-                  {/* If the installment is a split installment (has a dot) */}
                   {installment.installmentNumber.includes(".") && (
                     <button
                       onClick={() => handleUnsplitInstallment(installment.id)}

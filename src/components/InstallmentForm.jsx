@@ -1,13 +1,35 @@
 import React from "react";
-import { Form } from "informed";
+import { Form, useFormState } from "informed";
 import InputField from "./InputField";
 import SelectField from "./SelectField";
 
-function InstallmentForm({ onSubmit }) {
+function InstallmentForm({ setInstallments }) {
+  const formState = useFormState();
+
+  const handleChange = ({values}) => {
+    
+    console.log(values)
+    if (values.loanAmount && values.tenure) {
+      const { loanAmount, tenure } = values;
+      const installmentAmount = (loanAmount / tenure).toFixed(2);
+
+      const newInstallments = Array.from({ length: tenure }, (_, index) => ({
+        id: index + 1,
+        installmentNumber: (index + 1).toString(),
+        amount: parseFloat(installmentAmount),
+        dueDate: "",
+        selected: false,
+        show: true,
+      }));
+
+      setInstallments(newInstallments);
+    }
+  };
+
   return (
     <div className="p-4 border rounded shadow-md">
       <h2 className="text-lg font-semibold mb-4">Installment Form</h2>
-      <Form onSubmit={onSubmit}>
+      <Form onChange={handleChange}>
         <InputField
           field={{
             id: "loanAmount",
@@ -17,7 +39,7 @@ function InstallmentForm({ onSubmit }) {
             required: true,
           }}
         />
-        
+
         <SelectField
           field={{
             id: "tenure",
@@ -29,13 +51,6 @@ function InstallmentForm({ onSubmit }) {
             })),
           }}
         />
-        
-        <button
-          type="submit"
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          Submit
-        </button>
       </Form>
     </div>
   );

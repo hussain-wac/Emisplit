@@ -1,77 +1,107 @@
-import { useState } from "react";
-
 export const useSplit = (installments, setInstallments) => {
   const handleSplitInstallment = (id) => {
-    const installmentToSplit = installments.find((inst) => inst.id === id);
-    if (!installmentToSplit || installmentToSplit.installmentNum.includes(".")) {
-      // Either no such installment or already split
-      alert("Select a valid installment to split.");
+    if (!id) {
       return;
     }
 
-    const splitAmount = (installmentToSplit.amount / 2).toFixed(2);
-    
-    // Generate new installments
-    const newInstallments = [
-      {
-        ...installmentToSplit,
-        show: false,
-      },
-      {
-        id: Date.now(), // Generate a unique ID for the split installment
-        installmentNum: `${installmentToSplit.installmentNum}.1`,
-        amount: parseFloat(splitAmount),
-        show: true,
-        splitFrom: installmentToSplit.id,
-      },
-      {
-        id: Date.now() + 1, // Generate a unique ID for the second split installment
-        installmentNum: `${installmentToSplit.installmentNum}.2`,
-        amount: parseFloat(splitAmount),
-        show: true,
-        splitFrom: installmentToSplit.id,
-      },
-    ];
+    const installmentToSplit = installments.find(inst => inst.id === id);
+    if (!installmentToSplit) {
+      return;
+    }
 
-    // Update installments with the new split installments
-    const updatedInstallments = installments.map((inst) =>
-      inst.id === id ? { ...inst, show: false } : inst
+    const key = "installmentNumber";
+    const installmentValue = installmentToSplit[key].toString();
+
+    if (installmentValue.includes(".")) {
+      return;
+    }
+
+    const splitAmount = parseFloat((installmentToSplit.amount / 2).toFixed(10));
+
+    const newId1 = Date.now();
+    const newId2 = Date.now() + 1;
+
+
+    const splitInstallment1 = {
+      ...installmentToSplit,
+      id: newId1,
+      [key]: `${installmentValue}.1`,
+      amount: splitAmount,
+      dueDate: installmentToSplit.dueDate,
+      show: true,
+      splitFrom: installmentToSplit.id,
+      selected: false,
+    };
+
+    const splitInstallment2 = {
+      ...installmentToSplit,
+      id: newId2,
+      [key]: `${installmentValue}.2`,
+      amount: splitAmount,
+      dueDate: "",
+      show: true,
+      splitFrom: installmentToSplit.id,
+      selected: false,
+    };
+
+    // Hide the original installment
+    const updatedInstallments = installments.map(inst =>
+      inst.id === installmentToSplit.id ? { ...inst, show: false, selected: false } : inst
     );
-    updatedInstallments.push(...newInstallments);
 
-    // Sort installments by their installment number
+    // Add the new split installments
+    updatedInstallments.push(splitInstallment1, splitInstallment2);
+
+    // Sort installments by installmentNumber
     updatedInstallments.sort((a, b) => {
-      const numA = a.installmentNum.includes(".") ? parseFloat(a.installmentNum) : parseInt(a.installmentNum);
-      const numB = b.installmentNum.includes(".") ? parseFloat(b.installmentNum) : parseInt(b.installmentNum);
-      return numA - numB;
+      const aVal = a[key].toString();
+      const bVal = b[key].toString();
+      const aNum = aVal.includes(".") ? parseFloat(aVal) : parseInt(aVal, 10);
+      const bNum = bVal.includes(".") ? parseFloat(bVal) : parseInt(bVal, 10);
+      return aNum - bNum;
     });
 
     setInstallments(updatedInstallments);
   };
 
   const handleUnsplitInstallment = (id) => {
-    const installmentToUnsplit = installments.find((inst) => inst.id === id);
+    const installmentToUnsplit = installments.find(inst => inst.id === id);
     if (!installmentToUnsplit || !installmentToUnsplit.splitFrom) {
-      alert("This installment was not split.");
       return;
     }
 
-    const originalInstallment = installments.find((inst) => inst.id === installmentToUnsplit.splitFrom);
-    if (!originalInstallment) return;
+    const key = "installmentNumber";
+    const originalId = installmentToUnsplit.splitFrom;
+    let restoredInstallment = null;
 
-    const updatedInstallments = installments.filter(
-      (inst) => inst.id !== installmentToUnsplit.id && inst.id !== id
-    );
+    // Remove both split installments and the hidden original, then restore the original installment
+    const filteredInstallments = installments.filter(inst => {
+      if (inst.id === originalId) {
+        restoredInstallment = { ...inst, show: true, selected: false };
+        return false;
+      }
+      if (inst.splitFrom && inst.splitFrom === originalId) {
+        return false;
+      }
+      return true;
+    });
 
-    const restoredInstallment = {
-      ...originalInstallment,
-      show: true,
-      amount: originalInstallment.amount + installmentToUnsplit.amount,
-    };
+    if (!restoredInstallment) {
+      return;
+    }
 
-    updatedInstallments.push(restoredInstallment);
+    filteredInstallments.push(restoredInstallment);
 
-    setInstallments(updatedInstallments);
+    // Sort the restored list
+    filteredInstallments.sort((a, b) => {
+      const aVal = a[key].toString();
+      const bVal = b[key].toString();
+      const aNum = aVal.includes(".") ? parseFloat(aVal) : parseInt(aVal, 10);
+      const bNum = bVal.includes(".") ? parseFloat(bVal) : parseInt(bVal, 10);
+      return aNum - bNum;
+    });
+
+    setInstallments(filteredInstallments);
   };
 
   return {
