@@ -1,42 +1,35 @@
 import { toast } from "react-toastify";
 export const useSplit = (installments, setInstallments) => {
   const handleSplitInstallment = (id) => {
-    if (!id) {
-      return;
-    }
-
     const installmentToSplit = installments.find((inst) => inst.id === id);
     if (!installmentToSplit) {
       return;
     }
-
-
     if (!installmentToSplit.dueDate) {
       toast.error("Please ensure the selected installment has a due date.");
       return;
     }
     const key = "installmentNumber";
     const installmentValue = installmentToSplit[key].toString();
-
+    console.log("instalment value :", installmentValue);
     if (installmentValue.includes(".") || installmentValue.includes("+")) {
       toast.error(
         "Invalid installment number. Only whole numbers can be split."
       );
       return;
     }
-
-
     const splitAmount = parseFloat((installmentToSplit.amount / 2).toFixed(10));
 
     const newId1 = Date.now();
     const newId2 = Date.now() + 1;
+    const cache = installmentToSplit.dueDate;
 
     const splitInstallment1 = {
       ...installmentToSplit,
       id: newId1,
       [key]: `${installmentValue}.1`,
       amount: splitAmount,
-      dueDate: installmentToSplit.dueDate,
+      dueDate: cache,
       show: true,
       splitFrom: installmentToSplit.id,
       selected: false,
